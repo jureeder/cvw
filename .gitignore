@@ -1,5 +1,7 @@
 **/work*
 **/wally_*.log
+/**/obj_dir*
+/**/gmon*
 
 .nfs*
 
@@ -115,10 +117,10 @@ tests/wally-riscv-arch-test/riscv-test-suite/rv*i_m/I/src/*.S
 tests/wally-riscv-arch-test/riscv-test-suite/rv*i_m/I/Makefrag
 sim/branch_BP_GSHARE10.log
 sim/branch_BP_GSHARE16.log
-sim/imperas.log
+sim/questa/imperas.log
 sim/results-error/
 sim/test1.rep
-sim/vsim.log
+sim/questa/vsim.log
 tests/coverage/*.elf
 *.elf.memfile
 sim/*Cache.log
@@ -186,7 +188,10 @@ sim/cfi/*
 sim/branch/*
 sim/obj_dir
 examples/verilog/fulladder/obj_dir
+examples/verilog/fulladder/fulladder.vcd
 config/deriv
+docs/docker/buildroot-config-src
+docs/docker/testvector-generation
 sim/questa/cov
 sim/questa/covhtmlreport/
 sim/questa/logs
@@ -199,3 +204,21 @@ benchmarks/coremark/coremark_results.csv
 fpga/zsbl/OBJ/*
 fpga/zsbl/bin/*
 sim/*.svg
+sim/vcs/csrc
+sim/vcs/profileReport*
+sim/vcs/program.out
+sim/vcs/sim_out*
+sim/vcs/simprofile_dir
+sim/vcs/ucli.key
+sim/vcs/verdi_config_file
+sim/*/testbench.vcd 
+sim/questa/imperas.log
+sim/questa/regression.log
+sim/questa/regression_logs/*
+sim/questa/regression_ucdbs/*
+sim/questa/riscv.ucdb
+sim/questa/riscv.ucdb.log
+sim/questa/riscv.ucdb.summary.log
+sim/questa/riscv.ucdb.testdetails.log
+tests/riscvdv
+
