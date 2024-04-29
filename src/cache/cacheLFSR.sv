@@ -32,34 +32,6 @@
 
 // do we need to include any of the other inputs/outputs that were part of the cacheLRU module?
 
-
-module cacheLFSR #(parameter WIDTH = 5) ( input logic clk, rst, 
-              output logic [WIDTH - 1:0] lfsrResult); //variable length
- 
-logic [WIDTH - 1:0] curr; // variable length
-logic       next;
-
-flopenl #(WIDTH) ff (.clk, .load(rst), .en(1'b1), .d({next, curr[WIDTH - 1:1]}), .val({{(WIDTH - 1){1'b0}}, 1'b1}), .q(curr));
-assign lfsrResult = curr;
-
-if (WIDTH == 3) begin
-    assign next = curr[2] ^ curr[0]; 
-end else if (WIDTH == 4) begin
-    assign next = curr[3] ^ curr[0];
-end else if (WIDTH == 5) begin
-    assign next = curr[4] ^ curr[3] ^ curr[2] ^ curr[0];
-end else if (WIDTH == 6) begin
-    assign next = curr[5] ^ curr[4] ^ curr[2] ^ curr[1];
-end else if (WIDTH == 7) begin
-    assign next = curr[6] ^ curr[5] ^ curr[3] ^ curr[0];
-end else if (WIDTH == 8) begin
-    assign next = curr[7] ^ curr[5] ^ curr[2] ^ curr[1];
-end else if (WIDTH == 9) begin
-    assign next = curr[8] ^ curr[6] ^ curr[5] ^ curr[4] ^ curr[3] ^ curr[2];
-end
-
-endmodule
-
 module cacheLRU
   #(parameter NUMWAYS = 4, SETLEN = 9, OFFSETLEN = 5, NUMLINES = 128) (
   input  logic                clk, 
