@@ -29,7 +29,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 module cache import cvw::*; #(parameter cvw_t P,
-                              parameter PA_BITS, XLEN, LINELEN,  NUMLINES,  NUMWAYS, LOGBWPL, WORDLEN, MUXINTERVAL, READ_ONLY_CACHE) (
+                              parameter PA_BITS, XLEN, LINELEN,  NUMLINES,  NUMWAYS, LOGBWPL, WORDLEN, MUXINTERVAL, CACHE_REPL, READ_ONLY_CACHE) (
   input  logic                   clk,
   input  logic                   reset,
   input  logic                   Stall,             // Stall the cache, preventing new accesses. In-flight access finished but does not return to READY
@@ -126,10 +126,16 @@ module cache import cvw::*; #(parameter cvw_t P,
 
   // Select victim way for associative caches
   if(NUMWAYS > 1) begin:vict
+  if(CACHE_REPL == 1) begin:rand
     cacheLFSR #(NUMWAYS, SETLEN, OFFSETLEN, NUMLINES) cacheLFSR(
       .clk, .reset, .FlushStage, .CacheEn, .HitWay, .ValidWay, .VictimWay, .CacheSetData, .CacheSetTag, .LRUWriteEn,
       .SetValid, .ClearValid, .PAdr(PAdr[SETTOP-1:OFFSETLEN]), .InvalidateCache);
-  end else 
+  end else if (CACHE_REPL == 0) begin:lru
+    cacheLRU #(NUMWAYS, SETLEN, OFFSETLEN, NUMLINES) cacheLRU(
+      .clk, .reset, .FlushStage, .CacheEn, .HitWay, .ValidWay, .VictimWay, .CacheSetData, .CacheSetTag, .LRUWriteEn,
+      .SetValid, .ClearValid, .PAdr(PAdr[SETTOP-1:OFFSETLEN]), .InvalidateCache);
+  end 
+  end else
     assign VictimWay = 1'b1; // one hot.
     
 
@@ -216,10 +222,9 @@ module cache import cvw::*; #(parameter cvw_t P,
     assign FlushWayFlag = FlushWay[NUMWAYS-1];
   end // block: flushlogic
   else begin:flushlogic // I$ is never flushed because it is never dirty
-    assign FlushWay = '0;
-    assign FlushWayFlag = 1'b0;
-    assign FlushAdrFlag = 1'b0;
-    assign FlushAdr = '0;
+    assign FlushWay = 0;
+    assign FlushWayFlag = 0;
+    assign FlushAdrFlag = 0;
   end
    
   /////////////////////////////////////////////////////////////////////////////////////////////
