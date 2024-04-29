@@ -51,18 +51,22 @@ module cacheLFSR
 );
 
   localparam                           LOGNUMWAYS = $clog2(NUMWAYS);
-  localparem                           LFSRWIDTH = LOGNUMWAYS + 2; // added
+  localparam                           LFSRWIDTH = LOGNUMWAYS + 2; // added
 
   logic [NUMWAYS-2:0]                  LRUMemory [NUMLINES-1:0];
   //logic [NUMWAYS-2:0]                  CurrLRU;
   //logic [NUMWAYS-2:0]                  NextLRU;
   logic [LOGNUMWAYS-1:0]               HitWayEncoded, Way;
   logic                                AllValid;
+  logic                                LFSRen;   // added
 
   logic [LFSRWIDTH - 1:0]              currLFSR; // variable length, added
   logic                                nextLFSR; // 1 bit, added
+  logic [LFSRWIDTH - 1:0]              lfsrResult; // variable length, added
 
-  flopenl #(LFSRWIDTH) ff (.clk, .load(rst), .en(CacheEn), .d({next, currLFSR[LFSRWIDTH - 1:1]}), .val({{(LFSRWIDTH - 1){1'b0}}, 1'b1}), .q(currLFSR)); // replaced enabler with CacheEN
+  assign LFSRen = LRUWriteEn & ~FlushStage;
+
+  flopenl #(LFSRWIDTH) ff (.clk, .load(reset), .en(LFSRen), .d({nextLFSR, currLFSR[LFSRWIDTH - 1:1]}), .val({{(LFSRWIDTH - 1){1'b0}}, 1'b1}), .q(currLFSR)); // replaced enabler with CacheEN
   assign lfsrResult = currLFSR;
 
   if (LFSRWIDTH == 3) begin
@@ -81,23 +85,15 @@ module cacheLFSR
     assign nextLFSR = currLFSR[8] ^ currLFSR[6] ^ currLFSR[5] ^ currLFSR[4] ^ currLFSR[3] ^ currLFSR[2];
   end
 
-  /* verilator lint_off UNOPTFLAT */
-  // Rose: For some reason verilator does not like this.  I checked and it is not a circular path.
-  //logic [NUMWAYS-2:0]                  LRUUpdate;
-  //logic [LOGNUMWAYS-1:0] Intermediate [NUMWAYS-2:0];
-  /* verilator lint_on UNOPTFLAT */
-
   logic [NUMWAYS-1:0] FirstZero;
   logic [LOGNUMWAYS-1:0] FirstZeroWay;
   logic [LOGNUMWAYS-1:0] VictimWayEnc;
-
-  binencoder #(NUMWAYS) hitwayencoder(HitWay, HitWayEncoded);
 
   assign AllValid = &ValidWay;
  
   priorityonehot #(NUMWAYS) FirstZeroEncoder(~ValidWay, FirstZero);
   binencoder #(NUMWAYS) FirstZeroWayEncoder(FirstZero, FirstZeroWay);
-  mux2 #(LOGNUMWAYS) VictimMux(FirstZeroWay, lfsrResult, AllValid, VictimWayEnc); // check LFSR size
+  mux2 #(LOGNUMWAYS) VictimMux(FirstZeroWay, lfsrResult[LOGNUMWAYS-1:0], AllValid, VictimWayEnc); // check LFSR size
   decoder #(LOGNUMWAYS) decoder (VictimWayEnc, VictimWay);
 
 endmodule
