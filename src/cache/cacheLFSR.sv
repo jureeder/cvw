@@ -32,7 +32,7 @@
 
 // do we need to include any of the other inputs/outputs that were part of the cacheLRU module?
 
-module cacheLRU
+module cacheLFSR
   #(parameter NUMWAYS = 4, SETLEN = 9, OFFSETLEN = 5, NUMLINES = 128) (
   input  logic                clk, 
   input  logic                reset,
